@@ -7,65 +7,6 @@ from sklearn.preprocessing import MinMaxScaler
 #Daten extraction 
 #dateipfad = r"C:\\Users\\almueller\\Downloads\\continuous_factory_process.csv"
 dateipfad = r"C:\Users\Asus\Documents\MA_ETL-System\continuous_factory_process.csv"
-datei_struktur = {
-    'Maschine 1,2,3':
-    {
-        'Zeitstempel': 0,
-        'Input_start': 1,
-        'Input_ende': 42,
-        'Output_start': 42,
-        'Output_ende': 72 
-    },
-    'Maschine 4,5':
-    {
-        'Zeitstempel': 0,
-        'Input_start': 72,
-        'Input_ende': 86,
-        'Output_start': 86,
-        'Output_ende': 116 
-    },
-    
-}
-
-
-def lese_geordneten_tabellarischen_datensatz(csv_dateipfad, datei_struktur):
-    df = pd.read_csv(csv_dateipfad)
-    input_df = None
-    output_df = None
-    timestamp_df = None
-    results = []
-
-    for maschine, struktur in datei_struktur.items():
-        timestamp_df = df[df.columns[struktur['Zeitstempel']]]
-        input_df = df[df.columns[struktur['input_start']:struktur['input_ende']]]
-        output_df = df[df.columns[struktur['Output_start']:struktur['Output_ende']]]
-        timestamp_df =df['Datum'] = df[0].dt.date
-        timestamp_df =df['Uhrzeit'] = df[0].dt.time
-        results.append((maschine, timestamp_df, input_df, output_df))
-    
-    
-    print('Test')
-    df = lese_geordneten_tabellarischen_datensatz(dateipfad, datei_struktur)
-    print(df.to_string())
-    return results
-
-
-# Daten Transformation
-
-def normalize_dataset(dataset):
-    # Extrahiere die numerischen Spalten
-    numeric_columns = dataset.select_dtypes(include=['float64', 'int64']).columns
-    
-    # Initialisiere Min-Max-Scaler
-    scaler = MinMaxScaler()
-    
-    # Normalisiere die Daten
-    dataset[numeric_columns] = scaler.fit_transform(dataset[numeric_columns])
-    
-    
-    normalized_data = normalize_dataset(dataset)
-    print(normalized_data)
-    return dataset
 
 def create_database_schema(db_name='newcode.db'):
     # Verbindung zur SQLite-Datenbank herstellen (falls nicht vorhanden, wird eine neue erstellt)
@@ -177,22 +118,6 @@ def create_database_schema(db_name='newcode.db'):
         FOREIGN KEY(AnlageID) REFERENCES Anlage(AnlageID)
 
                 )''')
-
-    # Load in der Datenbank
-
-    # Beispiel: Daten in die Dimensionstabellen einfügen
-    # cursor.execute("INSERT INTO Datensatz (DatensatzID, Name der Daten, Zweck der Daten, Plattform, Gruppierung der Themenbereiche) VALUES (?, ?, ?, ?, ?)", (1, 'multi-stage continous-flow manufacturing process', 'Vorhersage der Output' 'Kaggle','Produktqualität'))
-    # cursor.execute("INSERT INTO Zielgroesse (ZielgroesseID, DatensatzID, parameterID, Timestamp, gemessene_Werte, Data_Pre_processingID, LocalisationID, AnlageID) VALUES (?, ?, ?, ?, ?, ?)", (1, 1, 1,df.columns[0], df.columns[42-72]&[86-116], 1, 1, 1))
-    # cursor.execute("INSERT INTO Timestamp (TimestampID, ist_echte_Timestamp, Aufgedeckter_Zeitraum, Time, Date) VALUES (?, ?, ?, ?, ?)", (1, 'ja', '', df[0].dt.time, df[0].dt.date))
-    # cursor.execute("INSERT INTO Anlage (AnlageID, Maschine, Prozesse, Hersteller, Anzahl_der_Prozesse) VALUES (?, ?, ?, ?, ?)", (1, 'Maschinenname', 'Prozessname', 'Herstellername'))
-    # cursor.execute("INSERT INTO Data_pre_processing (Data_Pre_processingID, Aufgabe, Datenmanipulation, Setspliting) VALUES (?, ?, ?, ?)", (1, 'Regression', 'Ja', 'Ja'))
-    # cursor.execute("INSERT INTO parameter (parameterID, Sensoren, Variablen) VALUES (?, ?, ?)", (1, 'Sensorname',df.iloc[0]))
-    # cursor.execute("INSERT INTO Eingangsgroesse (EingangsgroesseID, DatensatzID, ParameterID, Timestamp, gemessene_Werte, Data_Pre_processingID, LocalisationID, AnlageID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (1, 1, 1,df.columns[0],df.columns[1-42]&[72-86], 1, 1, 1))
-    # cursor.execute("INSERT INTO Localisation (LocalisationID, Land, Bundesland) VALUES (?, ?, ?)", (1, 'USA', 'Detroit, Michigan'))
-    # cursor.execute("INSERT INTO Rohdaten (RohdatenID, DatensatzID, ParameterID, Timestamp, gemessene_Werte, Data_Pre_processingID, LocalisationID, AnlageID) VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (1, 1, 1, '2024-02-12 12:00:00', 123.45, 1, 1, 1))
-
-    conn.commit()
-    conn.close()
 
 def transform_csv(filename, dataset_id, timestamp_column, data_indices, units_list):
     df = pd.read_csv(filename)
